@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
   <title>Are You Dylan Compatible?</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
@@ -382,9 +385,9 @@
       num: '🌸 Question 01',
       q: 'Pick your ideal first date:',
       opts: [
-        { text: 'Tennis then a long lunch 🎾', score: 3 },
-        { text: 'Spontaneous day trip, no plan ✈️', score: 2 },
-        { text: 'Drinks + good chaos 🍸', score: 1 },
+        { text: 'Tennis then a long lunch 🎾' },
+        { text: 'Spontaneous day trip, no plan ✈️' },
+        { text: 'Drinks + good chaos 🍸', flag: true },
       ]
     },
     {
@@ -392,9 +395,9 @@
       num: '✈️ Question 02',
       q: 'Someone who travels constantly — thoughts?',
       opts: [
-        { text: 'Already packing my bag 🧳', score: 3 },
-        { text: 'Sounds exhausting honestly 😮‍💨', score: 1 },
-        { text: 'Depends who\'s paying 💳', score: 2 },
+        { text: 'Already packing my bag 🧳' },
+        { text: 'Sounds exhausting honestly 😮‍💨', flag: true },
+        { text: 'Depends who\'s paying 💳' },
       ]
     },
     {
@@ -402,28 +405,28 @@
       num: '⏰ Question 03',
       q: 'When are you free?',
       opts: [
-        { text: 'This weekend 📅', score: 2 },
-        { text: 'Next week 🗓️', score: 1 },
-        { text: 'Anytime for you 😉', score: 3 },
+        { text: 'This weekend 📅' },
+        { text: 'Next week 🗓️' },
+        { text: 'Anytime for you 😉' },
       ]
     }
   ];
 
   const outcomes = [
     {
-      min: 8, cls: 'approved',
+      cls: 'approved',
       emoji: '✅', label: 'Application Approved',
       title: "You're through.",
-      body: '🎉 Rare. Genuinely rare. <strong>Dylan will be in touch.</strong> Don\'t overthink your outfit — the bar is already cleared. 🎾'
+      body: '🎉 Rare. Genuinely rare. Don\'t overthink your outfit — the bar is already cleared. 🎾'
     },
     {
-      min: 5, cls: 'waitlist',
+      cls: 'waitlist',
       emoji: '📋', label: "You're on the Waitlist",
       title: 'Promising, not perfect. 🤔',
       body: '👀 A few answers raised eyebrows. <strong>You can appeal the decision in person</strong> — bring strong opinions on where to eat and good chat.'
     },
     {
-      min: 0, cls: 'rejected',
+      cls: 'rejected',
       emoji: '⏳', label: 'Disqualified',
       title: "You're on the waitlist.",
       body: 'Dylan will analyse your responses and determine if you are still a suitable candidate. In the mean time... head over to Dylan\'s profile <a href="https://www.instagram.com/dylanadams._" target="_blank" style="color:var(--pink);text-decoration:none;font-weight:600;">@dylanadams._</a> for some more valuable content!'
@@ -431,7 +434,7 @@
   ];
 
   let current = 0;
-  const scores = {};
+  const flags = {};
 
   function updatePips(index) {
     for (let i = 0; i < 3; i++) {
@@ -452,7 +455,7 @@
       <div class="card-q">${q.q}</div>
       <div class="options">
         ${q.opts.map((o, i) => `
-          <div class="opt" data-score="${o.score}" data-q="${index}" onclick="pick(this)">
+          <div class="opt" data-flag="${o.flag ? '1' : '0'}" data-q="${index}" onclick="pick(this)">
             <div class="opt-key">${String.fromCharCode(65 + i)}</div>
             <div class="opt-text">${o.text}</div>
           </div>
@@ -474,7 +477,7 @@
       if (o !== el) o.classList.add('dim');
     });
     el.classList.add('sel');
-    scores[q] = parseInt(el.dataset.score);
+    flags[q] = el.dataset.flag === '1';
 
     setTimeout(() => advance(q), 420);
   }
@@ -501,8 +504,8 @@
     document.getElementById('stage').style.display = 'none';
     document.querySelector('.progress').style.display = 'none';
 
-    const total = Object.values(scores).reduce((a, b) => a + b, 0);
-    const outcome = outcomes.find(o => total >= o.min);
+    const badCount = Object.values(flags).filter(Boolean).length;
+    const outcome = badCount >= 2 ? outcomes[2] : badCount === 1 ? outcomes[1] : outcomes[0];
 
     document.getElementById('r-emoji').textContent = outcome.emoji;
     document.getElementById('r-label').textContent  = outcome.label;
@@ -603,7 +606,7 @@
   }
 
   function restart() {
-    Object.keys(scores).forEach(k => delete scores[k]);
+    Object.keys(flags).forEach(k => delete flags[k]);
     current = 0;
     document.getElementById('result').className = '';
     document.getElementById('stage').style.display = 'block';
