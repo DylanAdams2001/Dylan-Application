@@ -447,7 +447,8 @@
   ];
 
   let current = 0;
-  const flags = {};
+  const flags   = {};
+  const answers = {};
 
   function updatePips(index) {
     for (let i = 0; i < 3; i++) {
@@ -490,7 +491,8 @@
       if (o !== el) o.classList.add('dim');
     });
     el.classList.add('sel');
-    flags[q] = el.dataset.flag === '1';
+    flags[q]   = el.dataset.flag === '1';
+    answers[q] = el.querySelector('.opt-text').textContent;
 
     setTimeout(() => advance(q), 420);
   }
@@ -638,7 +640,10 @@
 
     const url = SCRIPT_URL
       + '?handle='    + encodeURIComponent(handle)
-      + '&timestamp=' + encodeURIComponent(new Date().toISOString());
+      + '&timestamp=' + encodeURIComponent(new Date().toISOString())
+      + '&q1='        + encodeURIComponent(answers[0] || '')
+      + '&q2='        + encodeURIComponent(answers[1] || '')
+      + '&q3='        + encodeURIComponent(answers[2] || '');
 
     fetch(url, { mode: 'no-cors' }).catch(() => {});
 
@@ -648,6 +653,7 @@
 
   function restart() {
     Object.keys(flags).forEach(k => delete flags[k]);
+    Object.keys(answers).forEach(k => delete answers[k]);
     current = 0;
     document.getElementById('result').className = '';
     document.getElementById('stage').style.display = 'block';
