@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Are You Dylan Compatible?</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@800;900&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --pink:   #ff4d8d;
+      --orange: #ff7c3a;
+      --yellow: #ffd93d;
+      --green:  #06d6a0;
+      --blue:   #4895ef;
+      --purple: #9b5de5;
+    }
+
+    body {
+      min-height: 100vh;
+      background: #09090f;
+      color: #f0f0f0;
+      font-family: 'DM Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 80px;
+    }
+
+    /* ── BG DOTS ── */
+    .dots {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .dot {
+      position: absolute;
+      border-radius: 50%;
+      opacity: 0.05;
+      animation: floatUp linear infinite;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(100vh) rotate(0deg); }
+      to   { transform: translateY(-140px) rotate(360deg); }
+    }
+
+    /* ── HEADER ── */
+    .header {
+      text-align: center;
+      margin-bottom: 44px;
+      position: relative;
+      z-index: 1;
+      max-width: 560px;
+      width: 100%;
+    }
+
+    .badge {
+      display: inline-block;
+      background: linear-gradient(135deg, var(--pink), var(--purple));
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 6px 16px;
+      border-radius: 100px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      font-family: 'Nunito', sans-serif;
+      font-size: clamp(2.6rem, 7.5vw, 4.2rem);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+      background: linear-gradient(135deg, #fff 30%, var(--pink) 70%, var(--orange));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 0.95rem;
+      line-height: 1.6;
+    }
+
+    /* ── PROGRESS ── */
+    .progress {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 32px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .pip {
+      height: 4px;
+      width: 48px;
+      border-radius: 4px;
+      background: #1e1e1e;
+      transition: background 0.4s, transform 0.3s;
+    }
+    .pip.active { background: #444; transform: scaleY(1.5); }
+    .pip.done   { background: #fff; }
+
+    /* ── STAGE ── */
+    .stage {
+      max-width: 560px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+      min-height: 360px;
+    }
+
+    /* ── CARD ── */
+    .card {
+      border-radius: 24px;
+      padding: 36px 32px 32px;
+      position: relative;
+      overflow: hidden;
+      width: 100%;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      padding: 1.5px;
+      background: var(--grad);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: destination-out;
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .card-1 { background: #0f0f1a; --grad: linear-gradient(135deg, var(--pink), var(--purple)); --accent: var(--pink); }
+    .card-2 { background: #0b1a14; --grad: linear-gradient(135deg, var(--green), var(--blue));  --accent: var(--green); }
+    .card-3 { background: #1a1108; --grad: linear-gradient(135deg, var(--yellow), var(--orange)); --accent: var(--yellow); }
+
+    /* Slide animations */
+    .card.enter {
+      animation: slideIn 0.38s cubic-bezier(0.34, 1.4, 0.64, 1) forwards;
+    }
+    .card.exit {
+      animation: slideOut 0.28s ease forwards;
+      pointer-events: none;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(60px) scale(0.97); }
+      to   { opacity: 1; transform: translateX(0)    scale(1); }
+    }
+    @keyframes slideOut {
+      from { opacity: 1; transform: translateX(0)     scale(1); }
+      to   { opacity: 0; transform: translateX(-60px) scale(0.95); }
+    }
+
+    /* ── CARD INTERNALS ── */
+    .card-num {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .card-q {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #f0f0f0;
+      margin-bottom: 24px;
+      line-height: 1.35;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      border: 1.5px solid #222;
+      background: rgba(255,255,255,0.03);
+      cursor: pointer;
+      transition: all 0.18s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .opt:hover { background: rgba(255,255,255,0.07); border-color: #3a3a3a; }
+
+    .opt-key {
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      background: #1a1a1a;
+      color: #555;
+      transition: all 0.18s;
+    }
+
+    .opt-text {
+      font-size: 0.95rem;
+      color: #bbb;
+      transition: color 0.18s;
+    }
+
+    .opt.sel { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+    .opt.sel .opt-key { background: var(--accent); color: #000; }
+    .opt.sel .opt-text { color: #fff; }
+    .opt.dim { opacity: 0.25; pointer-events: none; }
+
+    /* ── RESULT ── */
+    #result {
+      display: none;
+      max-width: 560px;
+      width: 100%;
+      text-align: center;
+      padding: 56px 32px;
+      border-radius: 24px;
+      position: relative;
+      z-index: 1;
+    }
+    #result.show {
+      display: block;
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+
+    #result.approved { background: radial-gradient(ellipse at top, rgba(6,214,160,0.14), transparent 60%), #080f0a; border: 1.5px solid var(--green); }
+    #result.waitlist { background: radial-gradient(ellipse at top, rgba(72,149,239,0.14), transparent 60%), #080a12; border: 1.5px solid var(--blue); }
+    #result.rejected { background: radial-gradient(ellipse at top, rgba(255,77,141,0.14), transparent 60%), #12080a; border: 1.5px solid var(--pink); }
+
+    .r-emoji { font-size: 3.8rem; margin-bottom: 16px; }
+
+    .r-label {
+      font-size: 0.68rem;
+      letter-spacing: 3px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+    .approved .r-label { color: var(--green); }
+    .waitlist .r-label { color: var(--blue); }
+    .rejected .r-label { color: var(--pink); }
+
+    .r-title {
+      font-family: 'Nunito', sans-serif;
+      font-size: 2.2rem;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 14px;
+      line-height: 1.1;
+    }
+
+    .r-body {
+      color: #888;
+      font-size: 0.97rem;
+      line-height: 1.8;
+      max-width: 400px;
+      margin: 0 auto 32px;
+    }
+    .r-body strong { color: #ddd; }
+
+    .retry-btn {
+      background: transparent;
+      border: 1.5px solid #2a2a2a;
+      color: #555;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.82rem;
+      padding: 10px 24px;
+      border-radius: 100px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .retry-btn:hover { border-color: #555; color: #aaa; }
+
+    @keyframes popIn {
+      from { opacity: 0; transform: scale(0.9) translateY(24px); }
+      to   { opacity: 1; transform: scale(1)   translateY(0); }
+    }
+
+    /* ── FX ── */
+    #fx-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      display: none;
+    }
+
+    .fx-particle {
+      position: fixed;
+      pointer-events: none;
+      z-index: 999;
+      line-height: 1;
+    }
+
+    @keyframes emojiFall {
+      0%   { transform: translateY(-40px) rotate(0deg);   opacity: 1; }
+      100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+    }
+
+    @keyframes emojiRise {
+      0%   { transform: translateY(0)     scale(1);   opacity: 1; }
+      80%  { opacity: 1; }
+      100% { transform: translateY(-90vh) scale(0.2); opacity: 0; }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20%  { transform: translateX(-9px); }
+      40%  { transform: translateX(9px); }
+      60%  { transform: translateX(-6px); }
+      80%  { transform: translateX(6px); }
+    }
+
+    @keyframes borderGlow {
+      0%, 100% { box-shadow: none; }
+      50%       { box-shadow: 0 0 48px 6px var(--glow); }
+    }
+
+    #result.approved { --glow: rgba(6,214,160,0.45); }
+    #result.waitlist { --glow: rgba(72,149,239,0.4); }
+    #result.rejected { --glow: rgba(255,77,141,0.45); }
+
+    #result.glow { animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards, borderGlow 1.1s ease 0.5s 3; }
+    #result.shake-fx { animation: popIn 0.5s cubic-bezier(0.175,0.885,0.32,1.275) forwards, shake 0.55s ease 0.55s, borderGlow 1s ease 1.1s 2; }
+  </style>
+</head>
+<body>
+
+<canvas id="fx-canvas"></canvas>
+<div class="dots" id="dots"></div>
+
+<div class="header">
+  <div class="badge">🎾 Limited Spots Available 🌍</div>
+  <h1>Are You Dylan<br>Compatible? <span style="-webkit-text-fill-color:initial">🤔</span></h1>
+  <p class="subtitle">3 quick questions. Be honest — the competition is real and I'm picky. 👀</p>
+</div>
+
+<div class="progress">
+  <div class="pip" id="pip0"></div>
+  <div class="pip" id="pip1"></div>
+  <div class="pip" id="pip2"></div>
+</div>
+
+<div class="stage" id="stage"></div>
+
+<div id="result">
+  <div class="r-emoji" id="r-emoji"></div>
+  <div class="r-label" id="r-label"></div>
+  <div class="r-title" id="r-title"></div>
+  <div class="r-body"  id="r-body"></div>
+  <button class="retry-btn" onclick="restart()">Retake (won't change anything)</button>
+  <p id="contact-msg" style="display:none;color:#888;font-size:0.95rem;font-style:italic;">Dylan will be in contact shortly 💌</p>
+</div>
+
+<script>
+  const questions = [
+    {
+      cls: 'card-1',
+      num: '🌸 Question 01',
+      q: 'Pick your ideal first date:',
+      opts: [
+        { text: 'Tennis then a long lunch 🎾', score: 3 },
+        { text: 'Spontaneous day trip, no plan ✈️', score: 2 },
+        { text: 'Drinks + good chaos 🍸', score: 1 },
+      ]
+    },
+    {
+      cls: 'card-2',
+      num: '✈️ Question 02',
+      q: 'Someone who travels constantly — thoughts?',
+      opts: [
+        { text: 'Already packing my bag 🧳', score: 3 },
+        { text: 'Sounds exhausting honestly 😮‍💨', score: 1 },
+        { text: 'Depends who\'s paying 💳', score: 2 },
+      ]
+    },
+    {
+      cls: 'card-3',
+      num: '⏰ Question 03',
+      q: 'When are you free?',
+      opts: [
+        { text: 'This weekend 📅', score: 2 },
+        { text: 'Next week 🗓️', score: 1 },
+        { text: 'Anytime for you 😉', score: 3 },
+      ]
+    }
+  ];
+
+  const outcomes = [
+    {
+      min: 8, cls: 'approved',
+      emoji: '✅', label: 'Application Approved',
+      title: "You're through.",
+      body: '🎉 Rare. Genuinely rare. <strong>Dylan will be in touch.</strong> Don\'t overthink your outfit — the bar is already cleared. 🎾'
+    },
+    {
+      min: 5, cls: 'waitlist',
+      emoji: '📋', label: "You're on the Waitlist",
+      title: 'Promising, not perfect. 🤔',
+      body: '👀 A few answers raised eyebrows. <strong>You can appeal the decision in person</strong> — bring strong opinions on where to eat and good chat.'
+    },
+    {
+      min: 0, cls: 'rejected',
+      emoji: '⏳', label: 'Disqualified',
+      title: "You're on the waitlist.",
+      body: 'Dylan will analyse your responses and determine if you are still a suitable candidate. In the mean time... head over to Dylan\'s profile <a href="https://www.instagram.com/dylanadams._" target="_blank" style="color:var(--pink);text-decoration:none;font-weight:600;">@dylanadams._</a> for some more valuable content!'
+    }
+  ];
+
+  let current = 0;
+  const scores = {};
+
+  function updatePips(index) {
+    for (let i = 0; i < 3; i++) {
+      const pip = document.getElementById('pip' + i);
+      pip.className = 'pip' + (i < index ? ' done' : i === index ? ' active' : '');
+    }
+  }
+
+  function renderCard(index, animate = true) {
+    const stage = document.getElementById('stage');
+    const q = questions[index];
+
+    const card = document.createElement('div');
+    card.className = 'card ' + q.cls + (animate ? ' enter' : '');
+
+    card.innerHTML = `
+      <div class="card-num">${q.num}</div>
+      <div class="card-q">${q.q}</div>
+      <div class="options">
+        ${q.opts.map((o, i) => `
+          <div class="opt" data-score="${o.score}" data-q="${index}" onclick="pick(this)">
+            <div class="opt-key">${String.fromCharCode(65 + i)}</div>
+            <div class="opt-text">${o.text}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+
+    stage.appendChild(card);
+    updatePips(index);
+  }
+
+  function pick(el) {
+    if (el.classList.contains('dim')) return;
+    const card = el.closest('.card');
+    const q = parseInt(el.dataset.q);
+
+    card.querySelectorAll('.opt').forEach(o => {
+      o.classList.remove('sel', 'dim');
+      if (o !== el) o.classList.add('dim');
+    });
+    el.classList.add('sel');
+    scores[q] = parseInt(el.dataset.score);
+
+    setTimeout(() => advance(q), 420);
+  }
+
+  function advance(q) {
+    const stage = document.getElementById('stage');
+    const card = stage.querySelector('.card');
+
+    card.classList.remove('enter');
+    card.classList.add('exit');
+
+    setTimeout(() => {
+      card.remove();
+      if (q < questions.length - 1) {
+        current = q + 1;
+        renderCard(current);
+      } else {
+        showResult();
+      }
+    }, 260);
+  }
+
+  function showResult() {
+    document.getElementById('stage').style.display = 'none';
+    document.querySelector('.progress').style.display = 'none';
+
+    const total = Object.values(scores).reduce((a, b) => a + b, 0);
+    const outcome = outcomes.find(o => total >= o.min);
+
+    document.getElementById('r-emoji').textContent = outcome.emoji;
+    document.getElementById('r-label').textContent  = outcome.label;
+    document.getElementById('r-title').textContent  = outcome.title;
+    document.getElementById('r-body').innerHTML     = outcome.body;
+
+    const retryBtn = document.querySelector('.retry-btn');
+    const contactMsg = document.getElementById('contact-msg');
+    if (outcome.cls === 'approved') {
+      retryBtn.style.display = 'none';
+      contactMsg.style.display = 'block';
+    } else {
+      retryBtn.style.display = '';
+      contactMsg.style.display = 'none';
+    }
+
+    const result = document.getElementById('result');
+    const fxClass = outcome.cls === 'rejected' ? 'shake-fx' : 'glow';
+    result.className = 'show ' + outcome.cls + ' ' + fxClass;
+    result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    if (outcome.cls === 'approved') {
+      setTimeout(launchConfetti, 350);
+    } else if (outcome.cls === 'waitlist') {
+      setTimeout(() => launchParticles(['✨','⭐','💫','🌟'], 'rise'), 350);
+    } else {
+      setTimeout(() => launchParticles(['💔','😬','❌','😭'], 'fall'), 550);
+    }
+  }
+
+  // ── FX ──
+
+  function launchConfetti() {
+    const canvas = document.getElementById('fx-canvas');
+    canvas.style.display = 'block';
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const ctx = canvas.getContext('2d');
+    const cols = ['#ff4d8d','#ff7c3a','#ffd93d','#06d6a0','#4895ef','#9b5de5','#ffffff'];
+
+    const pieces = Array.from({ length: 180 }, () => ({
+      x: Math.random() * canvas.width,
+      y: -Math.random() * canvas.height * 0.4,
+      w: Math.random() * 11 + 5,
+      h: Math.random() * 5 + 3,
+      color: cols[Math.floor(Math.random() * cols.length)],
+      vx: (Math.random() - 0.5) * 4,
+      vy: Math.random() * 5 + 2,
+      rot: Math.random() * Math.PI * 2,
+      vrot: (Math.random() - 0.5) * 0.18,
+      opacity: 1
+    }));
+
+    let frame = 0;
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      for (const p of pieces) {
+        p.x  += p.vx;
+        p.y  += p.vy;
+        p.vy += 0.06;
+        p.rot += p.vrot;
+        if (frame > 90) p.opacity -= 0.009;
+        if (p.opacity > 0) alive = true;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.rotate(p.rot);
+        ctx.globalAlpha = Math.max(0, p.opacity);
+        ctx.fillStyle = p.color;
+        ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+        ctx.restore();
+      }
+      frame++;
+      if (alive) requestAnimationFrame(draw);
+      else canvas.style.display = 'none';
+    }
+    draw();
+  }
+
+  function launchParticles(emojis, direction) {
+    const count = 28;
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const el = document.createElement('div');
+        el.className = 'fx-particle';
+        el.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+        const size = Math.random() * 14 + 14;
+        const dur  = (Math.random() * 1.8 + 1.8).toFixed(2);
+        if (direction === 'fall') {
+          el.style.cssText = `left:${Math.random()*100}vw;top:-40px;font-size:${size}px;animation:emojiFall ${dur}s ease-in forwards;`;
+        } else {
+          el.style.cssText = `left:${Math.random()*100}vw;bottom:0;font-size:${size}px;animation:emojiRise ${dur}s ease-out forwards;`;
+        }
+        document.body.appendChild(el);
+        el.addEventListener('animationend', () => el.remove());
+      }, i * 70);
+    }
+  }
+
+  function restart() {
+    Object.keys(scores).forEach(k => delete scores[k]);
+    current = 0;
+    document.getElementById('result').className = '';
+    document.getElementById('stage').style.display = 'block';
+    document.getElementById('stage').innerHTML = '';
+    document.querySelector('.progress').style.display = 'flex';
+    document.querySelector('.retry-btn').style.display = '';
+    document.getElementById('contact-msg').style.display = 'none';
+    renderCard(0);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Init
+  renderCard(0, false);
+
+  // Decorative bg dots
+  const colors = ['#ff4d8d','#ff7c3a','#ffd93d','#06d6a0','#4895ef','#9b5de5'];
+  const dotsEl = document.getElementById('dots');
+  for (let i = 0; i < 20; i++) {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    const size = Math.random() * 100 + 30;
+    d.style.cssText = `
+      width:${size}px;height:${size}px;
+      left:${Math.random()*100}%;
+      bottom:${-size}px;
+      background:${colors[i % colors.length]};
+      animation-duration:${14 + Math.random()*18}s;
+      animation-delay:${Math.random()*14}s;
+    `;
+    dotsEl.appendChild(d);
+  }
+</script>
+</body>
+</html>
