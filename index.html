@@ -376,6 +376,19 @@
   <div class="r-body"  id="r-body"></div>
   <button class="retry-btn" onclick="restart()">Retake (won't change anything)</button>
   <p id="contact-msg" style="display:none;color:#888;font-size:0.95rem;font-style:italic;">Dylan will be in contact shortly 💌</p>
+
+  <div id="ig-capture" style="display:none;margin-top:24px;">
+    <p style="color:#888;font-size:0.92rem;margin-bottom:14px;">Drop your IG handle so Dylan can find you 👇</p>
+    <div id="ig-form-row" style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+      <input id="ig-input" type="text" placeholder="@yourhandle"
+        style="background:#1a1a1a;border:1.5px solid #333;color:#fff;border-radius:100px;padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;width:210px;" />
+      <button onclick="submitHandle()"
+        style="background:var(--green);color:#000;border:none;border-radius:100px;padding:10px 24px;font-family:'DM Sans',sans-serif;font-weight:700;font-size:0.9rem;cursor:pointer;">
+        Send 💌
+      </button>
+    </div>
+    <p id="ig-thanks" style="display:none;color:var(--green);font-size:0.92rem;margin-top:14px;">Got it! Dylan will slide into your DMs soon 🎾</p>
+  </div>
 </div>
 
 <script>
@@ -514,12 +527,22 @@
 
     const retryBtn = document.querySelector('.retry-btn');
     const contactMsg = document.getElementById('contact-msg');
+    const igCapture = document.getElementById('ig-capture');
+    const igThanks  = document.getElementById('ig-thanks');
+    const igFormRow = document.getElementById('ig-form-row');
+    const igInput   = document.getElementById('ig-input');
+
     if (outcome.cls === 'approved') {
       retryBtn.style.display = 'none';
       contactMsg.style.display = 'block';
+      igCapture.style.display = 'block';
+      igThanks.style.display  = 'none';
+      igFormRow.style.display = 'flex';
+      igInput.value = '';
     } else {
       retryBtn.style.display = '';
       contactMsg.style.display = 'none';
+      igCapture.style.display = 'none';
     }
 
     const result = document.getElementById('result');
@@ -605,6 +628,24 @@
     }
   }
 
+  const SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+
+  function submitHandle() {
+    const input  = document.getElementById('ig-input');
+    let handle   = input.value.trim();
+    if (!handle) return;
+    if (!handle.startsWith('@')) handle = '@' + handle;
+
+    const body = new URLSearchParams();
+    body.append('handle', handle);
+    body.append('timestamp', new Date().toISOString());
+
+    fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', body }).catch(() => {});
+
+    document.getElementById('ig-form-row').style.display = 'none';
+    document.getElementById('ig-thanks').style.display   = 'block';
+  }
+
   function restart() {
     Object.keys(flags).forEach(k => delete flags[k]);
     current = 0;
@@ -614,6 +655,7 @@
     document.querySelector('.progress').style.display = 'flex';
     document.querySelector('.retry-btn').style.display = '';
     document.getElementById('contact-msg').style.display = 'none';
+    document.getElementById('ig-capture').style.display  = 'none';
     renderCard(0);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
